@@ -12,12 +12,12 @@ import ap25.*;
 
 class MyEval {
   static float[][] M = {
-      { 10,  10, 10, 10,  10,  10},
+      { 100,  10, 10, 10,  10,  100},
       { 10,  -5,  1,  1,  -5,  10},
       { 10,   1,  1,  1,   1,  10},
       { 10,   1,  1,  1,   1,  10},
       { 10,  -5,  1,  1,  -5,  10},
-      { 10,  10, 10, 10,  10,  10},
+      { 100,  10, 10, 10,  10,  100},
   };
 
   public float value(Board board) {
@@ -34,14 +34,14 @@ class MyEval {
 }
 
 public class MyPlayer extends ap25.Player {
-  static final String MY_NAME = "MY24";
+  static final String MY_NAME = "8128";
   MyEval eval;
   int depthLimit;
   Move move;
   MyBoard board;
 
   public MyPlayer(Color color) {
-    this(MY_NAME, color, new MyEval(), 2);
+    this(MY_NAME, color, new MyEval(), 3);
   }
 
   public MyPlayer(String name, Color color, MyEval eval, int depthLimit) {
