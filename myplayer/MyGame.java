@@ -156,4 +156,11 @@ public class MyGame {
   public static String toString(List<Move> moves) {
     return moves.stream().map(x -> x.toString()).collect(Collectors.joining());
   }
+
+  /**
+   * 着手履歴を取得
+   */
+  public List<Move> getMoves() {
+    return this.moves;
+  }
 }

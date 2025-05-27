@@ -101,35 +101,31 @@ public class BitBoard implements Cloneable {
     /** 石を置いて反転処理を行う（返り値: 反転後のBitBoard） */
     public BitBoard place(int idx, boolean isBlack) {
         BitBoard next = this.clone();
-        long me = isBlack ? black : white;
-        long opp = isBlack ? white : black;
-        long flip = 0;
-        int[] dir = {1, -1, 6, -6, 7, -7, 5, -5};
-        for (int d = 0; d < dir.length; d++) {
-            int offset = dir[d];
-            long mask = 0;
-            int pos = idx;
-            while (true) {
-                pos += offset;
-                if (pos < 0 || pos >= LENGTH) break;
-                long bit = 1L << pos;
-                if ((opp & bit) != 0) {
-                    mask |= bit;
-                } else if ((me & bit) != 0) {
-                    flip |= mask;
+        int x = idx % SIZE, y = idx / SIZE;
+        int[] dx = {1, 1, 0, -1, -1, -1, 0, 1};
+        int[] dy = {0, 1, 1, 1, 0, -1, -1, -1};
+        for (int d = 0; d < 8; d++) {
+            int nx = x + dx[d], ny = y + dy[d];
+            java.util.ArrayList<Integer> toFlip = new java.util.ArrayList<>();
+            while (0 <= nx && nx < SIZE && 0 <= ny && ny < SIZE) {
+                int ni = ny * SIZE + nx;
+                int v = get(ni);
+                if (v == 0) break;
+                if (v == (isBlack ? -1 : 1)) {
+                    toFlip.add(ni);
+                } else if (v == (isBlack ? 1 : -1)) {
+                    for (int flipIdx : toFlip) {
+                        next.set(flipIdx, isBlack);
+                    }
                     break;
                 } else {
                     break;
                 }
+                nx += dx[d];
+                ny += dy[d];
             }
         }
-        if (isBlack) {
-            next.black |= flip | (1L << idx);
-            next.white &= ~flip;
-        } else {
-            next.white |= flip | (1L << idx);
-            next.black &= ~flip;
-        }
+        next.set(idx, isBlack);
         return next;
     }
 
