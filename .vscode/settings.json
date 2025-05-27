@@ -1,0 +1,11 @@
+{
+  "[java]": {
+    "files.encoding": "utf8"
+  },
+  "files.autoGuessEncoding": true,
+  "files.encoding": "utf8",
+  "terminal.integrated.defaultProfile.windows": "Command Prompt",
+  "terminal.integrated.env.windows": {
+    "PYTHONIOENCODING": "shiftjis"
+  }
+}
