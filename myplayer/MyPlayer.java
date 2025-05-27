@@ -12,20 +12,21 @@ import ap25.*;
 
 class MyEval {
   static float[][] M = {
-      { 10,  10, 10, 10,  10,  10},
-      { 10,  -5,  1,  1,  -5,  10},
-      { 10,   1,  1,  1,   1,  10},
-      { 10,   1,  1,  1,   1,  10},
-      { 10,  -5,  1,  1,  -5,  10},
-      { 10,  10, 10, 10,  10,  10},
+      { 10, 10, 10, 10, 10, 10 },
+      { 10, -5, 1, 1, -5, 10 },
+      { 10, 1, 1, 1, 1, 10 },
+      { 10, 1, 1, 1, 1, 10 },
+      { 10, -5, 1, 1, -5, 10 },
+      { 10, 10, 10, 10, 10, 10 },
   };
 
   public float value(Board board) {
-    if (board.isEnd()) return 1000000 * board.score();
+    if (board.isEnd())
+      return 1000000 * board.score();
 
     return (float) IntStream.range(0, LENGTH)
-      .mapToDouble(k -> score(board, k))
-      .reduce(Double::sum).orElse(0);
+        .mapToDouble(k -> score(board, k))
+        .reduce(Double::sum).orElse(0);
   }
 
   float score(Board board, int k) {
@@ -41,7 +42,7 @@ public class MyPlayer extends ap25.Player {
   MyBoard board;
 
   public MyPlayer(Color color) {
-    this(MY_NAME, color, new MyEval(), 2);
+    this(MY_NAME, color, new MyEval(), 3);
   }
 
   public MyPlayer(String name, Color color, MyEval eval, int depthLimit) {
@@ -61,7 +62,9 @@ public class MyPlayer extends ap25.Player {
     }
   }
 
-  boolean isBlack() { return getColor() == BLACK; }
+  boolean isBlack() {
+    return getColor() == BLACK;
+  }
 
   public Move think(Board board) {
     this.board = this.board.placed(board.getMove());
@@ -82,7 +85,8 @@ public class MyPlayer extends ap25.Player {
   }
 
   float maxSearch(Board board, float alpha, float beta, int depth) {
-    if (isTerminal(board, depth)) return this.eval.value(board);
+    if (isTerminal(board, depth))
+      return this.eval.value(board);
 
     var moves = board.findLegalMoves(BLACK);
     moves = order(moves);
@@ -90,7 +94,7 @@ public class MyPlayer extends ap25.Player {
     if (depth == 0)
       this.move = moves.get(0);
 
-    for (var move: moves) {
+    for (var move : moves) {
       var newBoard = board.placed(move);
       float v = minSearch(newBoard, alpha, beta, depth + 1);
 
@@ -108,16 +112,18 @@ public class MyPlayer extends ap25.Player {
   }
 
   float minSearch(Board board, float alpha, float beta, int depth) {
-    if (isTerminal(board, depth)) return this.eval.value(board);
+    if (isTerminal(board, depth))
+      return this.eval.value(board);
 
     var moves = board.findLegalMoves(WHITE);
     moves = order(moves);
 
-    for (var move: moves) {
+    for (var move : moves) {
       var newBoard = board.placed(move);
       float v = maxSearch(newBoard, alpha, beta, depth + 1);
       beta = Math.min(beta, v);
-      if (alpha >= beta) break;
+      if (alpha >= beta)
+        break;
     }
 
     return beta;
