@@ -1,3 +1,4 @@
+# mac,windows
 
 # コンパイル
 make compile
