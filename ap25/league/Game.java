@@ -64,6 +64,7 @@ public class Game {
         this.board.foul(turn);
         break;
       }
+      System.out.println(board);
     }
 
     printResult(this.board, moves);
