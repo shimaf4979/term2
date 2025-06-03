@@ -8,7 +8,7 @@ AP25_DIR = ap25
 P25X00_DIR = p25x00
 
 # クラスファイルの出力ディレクトリ
-CLASS_DIR = classes
+CLASS_DIR = bin
 
 # メインクラス
 MAIN_CLASS = Competition25
