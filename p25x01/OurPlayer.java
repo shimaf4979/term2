@@ -12,19 +12,25 @@ import ap25.Board;
 import ap25.Color;
 import ap25.Move;
 
-class MyEval {
+class MyEval_8128 {
   static float[][] M = {
-      { 10, 10, 10, 10, 10, 10 },
-      { 10, -5, 1, 1, -5, 10 },
-      { 10, 1, 1, 1, 1, 10 },
-      { 10, 1, 1, 1, 1, 10 },
-      { 10, -5, 1, 1, -5, 10 },
-      { 10, 10, 10, 10, 10, 10 },
+      { 100, -50,  25,  25, -50, 100 },
+      { -50, -25,   1,   1, -25, -50 },
+      {  25,   1,   1,   1,   1,  25 },
+      {  25,   1,   1,   1,   1,  25 },
+      { -50, -25,   1,   1, -25, -50 },
+      { 100, -50,  25,  25, -50, 100 },
   };
 
   public float value(Board board) {
     if (board.isEnd())
       return 1000000 * board.score();
+
+    int piecesCount = IntStream.range(0, LENGTH)
+    .map(i -> board.get(i).getValue() != 0 ? 1 : 0).sum();
+    if (piecesCount > 30) {
+        return board.score() * 100;
+    }
 
     return (float) IntStream.range(0, LENGTH)
         .mapToDouble(k -> score(board, k))
@@ -37,17 +43,17 @@ class MyEval {
 }
 
 public class OurPlayer extends ap25.Player {
-  static final String MY_NAME = "2400";
-  MyEval eval;
+  static final String MY_NAME = "8128";
+  MyEval_8128 eval;
   int depthLimit;
   Move move;
   OurBoard board;
 
   public OurPlayer(Color color) {
-    this(MY_NAME, color, new MyEval(), 4);
+    this(MY_NAME, color, new MyEval_8128(), 4);
   }
 
-  public OurPlayer(String name, Color color, MyEval eval, int depthLimit) {
+  public OurPlayer(String name, Color color, MyEval_8128 eval, int depthLimit) {
     super(name, color);
     this.eval = eval;
     this.depthLimit = depthLimit;
@@ -55,7 +61,7 @@ public class OurPlayer extends ap25.Player {
   }
 
   public OurPlayer(String name, Color color, int depthLimit) {
-    this(name, color, new MyEval(), depthLimit);
+    this(name, color, new MyEval_8128(), depthLimit);
   }
 
   public void setBoard(Board board) {
@@ -145,7 +151,11 @@ public class OurPlayer extends ap25.Player {
   }
 
   boolean isTerminal(Board board, int depth) {
-    return board.isEnd() || depth > this.depthLimit;
+    int piecesCount = IntStream.range(0, LENGTH)
+        .map(i -> board.get(i).getValue() != 0 ? 1 : 0).sum();
+
+    int dynamicDepthLimit = piecesCount > 30 ? this.depthLimit + 3 : this.depthLimit;
+    return board.isEnd() || depth > dynamicDepthLimit;
   }
 
   List<Move> order(List<Move> moves) {
