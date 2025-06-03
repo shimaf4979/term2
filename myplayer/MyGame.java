@@ -18,7 +18,7 @@ public class MyGame {
    * @param args コマンドライン引数（使用しない）
    */
   public static void main(String args[]) {
-    var player1 = new myplayer.MyPlayer(BLACK);
+    var player1 = new MyPlayer(BLACK);
     var player2 = new myplayer.RandomPlayer(WHITE);
     var board = new MyBoard();
     var game = new MyGame(board, player1, player2);
@@ -29,7 +29,7 @@ public class MyGame {
    * 1プレイヤーあたりの制限時間（秒）
    * この時間を超過するとタイムアウト負けとなる
    */
-  static final float TIME_LIMIT_SECONDS = 60;
+  static final float TIME_LIMIT_SECONDS = 600;
 
   /**
    * ゲームで使用するボード
@@ -37,12 +37,12 @@ public class MyGame {
   Board board;
 
   /**
-   * 黒プレイヤー
+   * 黒プレイヤー（先手）
    */
   Player black;
 
   /**
-   * 白プレイヤー
+   * 白プレイヤー（後手）
    */
   Player white;
 
@@ -69,8 +69,8 @@ public class MyGame {
    * ゲームに必要な要素を初期化し、プレイヤーマップを作成
    * 
    * @param board ゲームで使用するボード
-   * @param black 黒プレイヤー
-   * @param white 白プレイヤー
+   * @param black 黒プレイヤー（先手）
+   * @param white 白プレイヤー（後手）
    */
   public MyGame(Board board, Player black, Player white) {
     this.board = board.clone();
@@ -87,9 +87,24 @@ public class MyGame {
   public void play() {
     this.players.values().forEach(p -> p.setBoard(this.board.clone()));
 
+    // ゲーム開始情報の表示
+    System.out.println("=== ゲーム開始 ===");
+    System.out.printf("先手（黒・o）: %s\n", black.toString());
+    System.out.printf("後手（白・x）: %s\n", white.toString());
+    System.out.println();
+
     while (this.board.isEnd() == false) {
       var turn = this.board.getTurn();
       var player = this.players.get(turn);
+
+      // 現在のターン表示（AIの場合）
+      if (!(player instanceof HumanPlayer)) {
+        String turnName = (turn == BLACK) ? "先手" : "後手";
+        String stoneName = (turn == BLACK) ? "黒(o)" : "白(x)";
+        System.out.printf("\n=== %s %s %sの番 ===\n",
+            player.toString(), stoneName, turnName);
+        System.out.println("思考中...");
+      }
 
       Error error = null;
       long t0 = System.currentTimeMillis();
@@ -108,6 +123,12 @@ public class MyGame {
       final var t = (float) Math.max(t1 - t0, 1) / 1000.f;
       this.times.compute(turn, (k, v) -> v + t);
 
+      // AIの手を表示
+      if (!(player instanceof HumanPlayer) && move.isLegal()) {
+        System.out.printf("%sが選択: %s (思考時間: %.2f秒)\n",
+            player.toString(), move, t);
+      }
+
       // 手の合法性などをチェック
       move = check(turn, move, error);
       moves.add(move);
@@ -120,7 +141,10 @@ public class MyGame {
         break;
       }
 
-      System.out.println(board);
+      // AIの後は盤面を表示
+      if (!(player instanceof HumanPlayer)) {
+        System.out.println(board);
+      }
     }
 
     printResult(board, moves);
@@ -137,20 +161,20 @@ public class MyGame {
    */
   Move check(Color turn, Move move, Error error) {
     if (move.isError()) {
-      System.err.printf("error: %s %s", turn, error);
+      System.err.printf("エラー: %s %s\n", turn, error);
       System.err.println(board);
       return move;
     }
 
     if (this.times.get(turn) > TIME_LIMIT_SECONDS) {
-      System.err.printf("timeout: %s %.2f", turn, this.times.get(turn));
+      System.err.printf("タイムアウト: %s %.2f秒\n", turn, this.times.get(turn));
       System.err.println(board);
       return Move.ofTimeout(turn);
     }
 
     var legals = board.findLegalMoves(turn);
     if (move == null || legals.contains(move) == false) {
-      System.err.printf("illegal move: %s %s", turn, move);
+      System.err.printf("違法手: %s %s\n", turn, move);
       System.err.println(board);
       return Move.ofIllegal(turn);
     }
@@ -176,23 +200,45 @@ public class MyGame {
    * @param moves 打たれた手の履歴
    */
   public void printResult(Board board, List<Move> moves) {
-    var result = String.format("%5s%-9s", "", "draw");
-    var score = Math.abs(board.score());
-    if (score > 0)
-      result = String.format("%-4s won by %-2d", getWinner(board), score);
+    System.out.println("\n" + "=".repeat(60));
+    System.out.println("                    ゲーム終了");
+    System.out.println("=".repeat(60));
 
-    var s = toString() + " -> " + result + "\t| " + toString(moves);
-    System.out.println(s);
+    var score = board.score();
+    var blackCount = board.count(BLACK);
+    var whiteCount = board.count(WHITE);
+
+    System.out.printf("最終スコア: 黒(o)先手 %d - %d 白(x)後手\n", blackCount, whiteCount);
+    System.out.printf("石差: %d\n", Math.abs(score));
+
+    String result;
+    if (score == 0) {
+      result = "引き分け";
+    } else {
+      Player winner = getWinner(board);
+      String winnerRole = (board.winner() == BLACK) ? "先手" : "後手";
+      result = String.format("%s (%s) の勝利", winner, winnerRole);
+    }
+
+    System.out.println("結果: " + result);
+
+    // 使用時間表示
+    System.out.printf("\n使用時間:\n");
+    System.out.printf("  %s (先手・黒): %.2f秒\n", black.toString(), times.get(BLACK));
+    System.out.printf("  %s (後手・白): %.2f秒\n", white.toString(), times.get(WHITE));
+
+    System.out.println("\n手順: " + toString(moves));
+    System.out.println("=".repeat(60));
   }
 
   /**
    * ゲームの文字列表現を取得
    * プレイヤー名の対戦形式で表示
    * 
-   * @return "黒プレイヤー vs 白プレイヤー" の形式
+   * @return "黒プレイヤー(先手) vs 白プレイヤー(後手)" の形式
    */
   public String toString() {
-    return String.format("%4s vs %4s", this.black, this.white);
+    return String.format("%s(先手) vs %s(後手)", this.black, this.white);
   }
 
   /**

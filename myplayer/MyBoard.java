@@ -65,11 +65,18 @@ public class MyBoard implements Board, Cloneable {
    * ボードを初期状態に設定
    * オセロの標準初期配置：c3, d4に黒石、d3, c4に白石を配置
    */
+  // void init() {
+  // set(Move.parseIndex("c3"), BLACK);
+  // set(Move.parseIndex("d4"), BLACK);
+  // set(Move.parseIndex("d3"), WHITE);
+  // set(Move.parseIndex("c4"), WHITE);
+  // }
+
   void init() {
-    set(Move.parseIndex("c3"), BLACK);
-    set(Move.parseIndex("d4"), BLACK);
-    set(Move.parseIndex("d3"), WHITE);
-    set(Move.parseIndex("c4"), WHITE);
+    set(Move.parseIndex("c3"), WHITE); // "x"
+    set(Move.parseIndex("d4"), WHITE); // "x"
+    set(Move.parseIndex("d3"), BLACK); // "o"
+    set(Move.parseIndex("c4"), BLACK); // "o"
   }
 
   /**
