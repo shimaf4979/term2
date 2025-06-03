@@ -16,13 +16,13 @@ public class MyGame {
 
   // MyPlayer vs RandomPlayer の勝率を調べるmain2
   public static void main(String[] args) {
-    int games = 1;
+    int games = 5;
     int myWin = 0;
     int draw = 0;
     for (int i = 0; i < games; i++) {
       // MyPlayer先手
       var player1 = new myplayer.MyPlayer(BLACK);
-      var player2 = new myplayer.MyPlayer(WHITE);
+      var player2 = new myplayer.OldPlayer(WHITE);
       var board = new MyBoard();
       var game = new MyGame(board, player1, player2);
       game.play();
@@ -32,7 +32,7 @@ public class MyGame {
     }
     for (int i = 0; i < games; i++) {
       // MyPlayer後手
-      var player1 = new myplayer.MyPlayer(BLACK);
+      var player1 = new myplayer.OldPlayer(BLACK);
       var player2 = new myplayer.MyPlayer(WHITE);
       var board = new MyBoard();
       var game = new MyGame(board, player1, player2);
@@ -41,7 +41,7 @@ public class MyGame {
       if (winner == player2) myWin++;
       else if (winner == null) draw++;
     }
-    System.out.printf("MyPlayer勝率: %.1f%% (勝ち: %d/%d, 引き分け: %d)\n", myWin/(float)(games*2)*100, myWin, games*2, draw);
+    System.out.printf("MyPlayer勝率: %.1f%% (勝ち: %d/%d, 引き分け: %d)\n", myWin*100/(games*2.0), myWin, games*2, draw);
   }
 
   static final float TIME_LIMIT_SECONDS = 60;

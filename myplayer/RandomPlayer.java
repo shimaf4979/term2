@@ -7,7 +7,7 @@ public class RandomPlayer extends Player {
   Random rand = new Random();
 
   public RandomPlayer(Color color) {
-    super("R", color);
+    super("Rand", color);
   }
 
   public Move think(Board board) {
